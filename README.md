@@ -41,6 +41,10 @@ focus-tracker stop
 
 # View total focused time
 focus-tracker report
+
+# Export data to Excel (creates two sheets: Sessions and Summary)
+focus-tracker export                           # Uses default filename: focus_tracker_export.xlsx
+focus-tracker export -o my_focus_sessions.xlsx # Specify custom filename
 ```
 
 ## Data Storage
@@ -49,6 +53,10 @@ The tool stores your focus session data in a CSV file located at `~/.focus_log.c
 - Start Time
 - End Time
 - Duration (minutes)
+
+You can export this data to Excel using the `export` command, which creates a formatted Excel file with:
+- Sessions sheet: All your focus sessions with timestamps
+- Summary sheet: Key statistics including total sessions, duration, and averages
 
 ## Requirements
 

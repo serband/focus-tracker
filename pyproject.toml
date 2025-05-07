@@ -12,6 +12,10 @@ license = "MIT"
 authors = [
     { name = "Your Name", email = "your.email@example.com" }
 ]
+dependencies = [
+    "pandas>=2.0.0",
+    "openpyxl>=3.1.0",  # Required for Excel support in pandas
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
@@ -26,9 +30,6 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Office/Business",
     "Topic :: Utilities",
-]
-dependencies = [
-    "hatchling>=1.27.0",
 ]
 
 [project.scripts]

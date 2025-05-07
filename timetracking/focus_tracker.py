@@ -5,6 +5,7 @@ import argparse
 import csv
 import os
 from datetime import datetime
+import pandas as pd
 
 LOG_FILE = os.path.expanduser("~/.focus_log.csv")
 
@@ -25,8 +26,11 @@ def init_log():
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='Track focused work time')
-    parser.add_argument('command', choices=['start', 'stop', 'report', 'status'], 
-                        help='start: Start a new session\nstop: End current session\nreport: Show summary\nstatus: Check current session')
+    parser.add_argument('command', choices=['start', 'stop', 'report', 'status', 'export'], 
+                        help='start: Start a new session\nstop: End current session\nreport: Show summary\nstatus: Check current session\nexport: Export to Excel')
+    parser.add_argument('--output', '-o', 
+                        help='Output file for export (default: focus_tracker_export.xlsx)',
+                        default='focus_tracker_export.xlsx')
     return parser.parse_args()
 
 def get_current_session():
@@ -108,6 +112,62 @@ def generate_report():
     
     print(f"Total focused time: {total:.1f} minutes ({total/60:.2f} hours)")
 
+def export_to_excel(output_file):
+    """Export focus tracking data to Excel with formatting."""
+    try:
+        # Read CSV into pandas DataFrame
+        df = pd.read_csv(LOG_FILE)
+        
+        # Convert time columns to datetime
+        df['Start Time'] = pd.to_datetime(df['Start Time'], format='%Y-%m-%d %H:%M')
+        df['End Time'] = pd.to_datetime(df['End Time'], format='%Y-%m-%d %H:%M')
+        
+        # Add some summary statistics
+        total_duration = df['Duration (minutes)'].sum()
+        total_sessions = len(df)
+        avg_duration = df['Duration (minutes)'].mean()
+        
+        # Create Excel writer object
+        with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
+            # Write main data
+            df.to_excel(writer, sheet_name='Sessions', index=False)
+            
+            # Create summary sheet
+            summary_data = {
+                'Metric': ['Total Sessions', 'Total Duration (minutes)', 'Total Duration (hours)', 'Average Session (minutes)'],
+                'Value': [total_sessions, total_duration, total_duration/60, avg_duration]
+            }
+            summary_df = pd.DataFrame(summary_data)
+            summary_df.to_excel(writer, sheet_name='Summary', index=False)
+            
+            # Get workbook and worksheet objects for formatting
+            workbook = writer.book
+            sessions_sheet = writer.sheets['Sessions']
+            summary_sheet = writer.sheets['Summary']
+            
+            # Auto-adjust column widths
+            for sheet in [sessions_sheet, summary_sheet]:
+                for column in sheet.columns:
+                    max_length = 0
+                    column = [cell for cell in column]
+                    for cell in column:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(cell.value)
+                        except:
+                            pass
+                    adjusted_width = (max_length + 2)
+                    sheet.column_dimensions[column[0].column_letter].width = adjusted_width
+        
+        print(f"Data exported to {output_file}")
+        print(f"Total sessions: {total_sessions}")
+        print(f"Total duration: {total_duration:.1f} minutes ({total_duration/60:.2f} hours)")
+        print(f"Average session: {avg_duration:.1f} minutes")
+        
+    except Exception as e:
+        print(f"Error exporting to Excel: {str(e)}")
+        raise
+
 def main():
     """Main entry point for the application."""
     try:
@@ -122,6 +182,8 @@ def main():
             show_status()
         elif args.command == 'report':
             generate_report()
+        elif args.command == 'export':
+            export_to_excel(args.output)
     except Exception as e:
         print(f"Error: {str(e)}")
         import traceback
