@@ -15,14 +15,14 @@ pip install uv
 ```powershell
 uv venv
 .venv\Scripts\activate
-uv pip install git+https://github.com/yourusername/focus-tracker.git
+uv pip install git+https://github.com/serband/focus-tracker.git
 ```
 
 Or using pip:
 ```powershell
 python -m venv .venv
 .venv\Scripts\activate
-pip install git+https://github.com/yourusername/focus-tracker.git
+pip install git+https://github.com/serband/focus-tracker.git
 ```
 
 ## Usage
@@ -61,7 +61,7 @@ If you're developing the package:
 
 1. Clone the repository:
 ```powershell
-git clone https://github.com/yourusername/focus-tracker.git
+git clone https://github.com/serband/focus-tracker.git
 cd focus-tracker
 ```
 
